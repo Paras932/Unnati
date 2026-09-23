@@ -1,5 +1,10 @@
 import { useMemo } from "react";
-import { getAssignments, getAttempts, getDbSnapshot } from "../data/mockDb";
+import {
+  getAssignments,
+  getAttempts,
+  getDbSnapshot,
+  getTutorById,
+} from "../data/mockDb";
 
 function Logo({ onClick }) {
   return (
@@ -33,7 +38,8 @@ function Metric({ label, value, detail }) {
   );
 }
 
-export default function TutorDashboard({ navigate }) {
+export default function TutorDashboard({ navigate, tutorId }) {
+  const tutor = getTutorById(tutorId);
   const db = getDbSnapshot();
   const attempts = getAttempts();
   const assignments = getAssignments();
@@ -59,6 +65,76 @@ export default function TutorDashboard({ navigate }) {
     [attempts],
   );
 
+  if (tutor.isNew) {
+    return (
+      <div className="min-h-screen bg-[#F9FAFB]">
+        <header className="border-b border-[#E5E7EB] bg-white">
+          <nav
+            className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-8"
+            aria-label="Tutor navigation"
+          >
+            <Logo onClick={() => navigate("tutor-dashboard", { tutorId })} />
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="hidden text-sm text-[#4B5563] sm:inline">
+                {tutor.name}
+              </span>
+              <button
+                type="button"
+                className="min-h-11 rounded-lg border border-[#E5E7EB] px-3 text-sm font-semibold text-[#4B5563] hover:border-[#1865F2] hover:text-[#1865F2]"
+                onClick={() => navigate("landing", { role: "tutor" })}
+              >
+                Exit
+              </button>
+            </div>
+          </nav>
+        </header>
+
+        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-8 sm:py-10">
+          <p className="text-sm font-semibold text-[#1865F2]">
+            Tutor dashboard
+          </p>
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#111827] sm:text-4xl">
+            Welcome, {tutor.name}.
+          </h1>
+          <p className="mt-3 text-[#4B5563]">
+            Your {tutor.classLevel} {tutor.subject} learning space is ready.
+          </p>
+
+          <section
+            className="mt-8 grid gap-4 sm:grid-cols-3"
+            aria-label="Class metrics"
+          >
+            <Metric
+              label="Students"
+              value="0"
+              detail="No students have joined yet"
+            />
+            <Metric
+              label="Digital products"
+              value="0"
+              detail="No digital products uploaded yet"
+            />
+            <Metric
+              label="Pending assignments"
+              value="0"
+              detail="No pending assignments"
+            />
+          </section>
+
+          <section className="mt-8 rounded-lg border border-dashed border-[#9CA3AF] bg-white p-8 text-center sm:p-12">
+            <h2 className="text-xl font-bold text-[#111827]">
+              Your educator space is empty
+            </h2>
+            <p className="mx-auto mt-3 max-w-lg leading-7 text-[#4B5563]">
+              Invite students or upload a digital product to start building your
+              learning community.
+            </p>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
       <header className="border-b border-[#E5E7EB] bg-white">
@@ -69,7 +145,7 @@ export default function TutorDashboard({ navigate }) {
           <Logo onClick={() => navigate("tutor-dashboard")} />
           <div className="flex items-center gap-2 sm:gap-4">
             <span className="hidden text-sm text-[#4B5563] sm:inline">
-              Kuldeep Verma
+              {tutor.name}
             </span>
             <button
               type="button"
@@ -89,10 +165,11 @@ export default function TutorDashboard({ navigate }) {
               Tutor dashboard
             </p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-[#111827] sm:text-4xl">
-              Good evening, kuldeep ji.
+              Good evening, {tutor.greetingName || tutor.name}.
             </h1>
             <p className="mt-3 text-[#4B5563]">
-              Here&apos;s how your Class 10 Mathematics batch is progressing.
+              Here&apos;s how your Class {tutor.classLevel} {tutor.subject}{" "}
+              batch is progressing.
             </p>
           </div>
           <button

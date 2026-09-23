@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getTutorById } from "../data/mockDb";
 
 function Logo({ onClick }) {
   return (
@@ -20,21 +21,33 @@ function Logo({ onClick }) {
   );
 }
 
-export default function TutorLogin({ navigate }) {
+export default function TutorLogin({ navigate, tutorId }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [isEntering, setIsEntering] = useState(false);
+  const tutor = getTutorById(tutorId);
+  const isNewEducator = Boolean(tutor.isNew);
 
   useEffect(() => {
     if (!isEntering) return undefined;
-    const transition = setTimeout(() => navigate("tutor-dashboard"), 900);
+    const transition = setTimeout(
+      () => navigate("tutor-dashboard", { tutorId: tutor.id }),
+      900,
+    );
     return () => clearTimeout(transition);
-  }, [isEntering, navigate]);
+  }, [isEntering, navigate, tutor.id]);
 
   const enterSpace = (event) => {
     event.preventDefault();
-    if (code.trim().toUpperCase() !== "KULDEEP10") {
-      setError("That tutor code does not match the demo space.");
+    const isValid = isNewEducator
+      ? code === tutor.password
+      : code.trim().toUpperCase() === "KULDEEP10";
+    if (!isValid) {
+      setError(
+        isNewEducator
+          ? "That password does not match this educator space."
+          : "That tutor code does not match the demo space.",
+      );
       return;
     }
     setIsEntering(true);
@@ -48,7 +61,7 @@ export default function TutorLogin({ navigate }) {
             Unnati
           </p>
           <h1 className="mt-4 text-3xl font-bold text-[#111827]">
-            Welcome Kuldeep ji...
+            Welcome {tutor.greetingName || tutor.name}...
           </h1>
           <p className="mt-3 text-[#4B5563]">Opening your educator space</p>
         </div>
@@ -80,10 +93,11 @@ export default function TutorLogin({ navigate }) {
             Tutor space
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-[#111827] sm:text-4xl">
-            Welcome back, Kuldeep.
+            Welcome back, {tutor.name}.
           </h1>
           <p className="mt-4 leading-7 text-[#4B5563]">
-            Enter your tutor code to open your Class 10 Mathematics space.
+            Enter your {isNewEducator ? "password" : "tutor code"} to open your
+            Class {tutor.classLevel} {tutor.subject} space.
           </p>
 
           <form className="mt-8" onSubmit={enterSpace}>
@@ -91,18 +105,19 @@ export default function TutorLogin({ navigate }) {
               className="block text-sm font-semibold text-[#111827]"
               htmlFor="tutor-code"
             >
-              Tutor code
+              {isNewEducator ? "Password" : "Tutor code"}
             </label>
             <input
               id="tutor-code"
-              name="tutor-code"
+              name="tutor-credential"
+              type={isNewEducator ? "password" : "text"}
               value={code}
               onChange={(event) => {
                 setCode(event.target.value);
                 setError("");
               }}
-              className="mt-2 min-h-12 w-full rounded-lg border border-[#E5E7EB] px-4 text-base uppercase tracking-[0.12em] text-[#111827] outline-none focus:border-[#1865F2] focus:ring-2 focus:ring-[#1865F2]/20"
-              autoComplete="off"
+              className="mt-2 min-h-12 w-full rounded-lg border border-[#E5E7EB] px-4 text-base text-[#111827] outline-none focus:border-[#1865F2] focus:ring-2 focus:ring-[#1865F2]/20"
+              autoComplete={isNewEducator ? "current-password" : "off"}
             />
             {error && (
               <p
@@ -116,7 +131,7 @@ export default function TutorLogin({ navigate }) {
               type="submit"
               className="mt-6 min-h-12 w-full rounded-lg bg-[#1865F2] px-6 font-semibold text-white hover:bg-[#0B58CA]"
             >
-              Enter Kuldeep Verma&apos;s space
+              Enter {tutor.name}&apos;s space
             </button>
           </form>
         </section>

@@ -1,6 +1,7 @@
 import seedData from "./seedData";
 
 const STORAGE_KEY = "unnati-demo-db-v3";
+const EDUCATORS_STORAGE_KEY = "unnati-educators-v1";
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -24,7 +25,46 @@ const createId = (prefix) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
 export const getDbSnapshot = () => clone(readDb());
+export const getEducators = () => {
+  const stored = localStorage.getItem(EDUCATORS_STORAGE_KEY);
+  if (stored) {
+    const educators = JSON.parse(stored).map((educator) => ({
+      ...educator,
+      focus:
+        educator.focus ||
+        (educator.id === "tutor-kuldeep"
+          ? "All Subjects"
+          : `Class ${educator.classLevel} ${educator.subject}`),
+    }));
+    localStorage.setItem(EDUCATORS_STORAGE_KEY, JSON.stringify(educators));
+    return educators;
+  }
+
+  const educators = [getDbSnapshot().tutor];
+  localStorage.setItem(EDUCATORS_STORAGE_KEY, JSON.stringify(educators));
+  return educators;
+};
+
 export const getTutor = () => getDbSnapshot().tutor;
+export const getTutorById = (tutorId) =>
+  getEducators().find((educator) => educator.id === tutorId) || getTutor();
+
+export const createEducator = ({ name, password, focus }) => {
+  const educators = getEducators();
+  const educator = {
+    id: createId("tutor"),
+    name: name.trim(),
+    focus: focus.trim(),
+    password,
+    subject: "Mathematics",
+    classLevel: 10,
+    greetingName: `${name.trim()} ji`,
+    isNew: true,
+  };
+  const nextEducators = [...educators, educator];
+  localStorage.setItem(EDUCATORS_STORAGE_KEY, JSON.stringify(nextEducators));
+  return clone(educator);
+};
 export const getStudents = () => getDbSnapshot().students;
 export const getStudent = (studentId) =>
   getStudents().find((student) => student.id === studentId);

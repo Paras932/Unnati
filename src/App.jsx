@@ -9,7 +9,8 @@ import Practice from "./pages/Practice";
 import Result from "./pages/Result";
 import TutorStudentReport from "./pages/TutorStudentReport";
 import QuestionBankRepository from "./pages/QuestionBankRepository";
-import { getTutor } from "./data/mockDb";
+import { getEducators } from "./data/mockDb";
+import EducatorRegistration from "./pages/EducatorRegistration";
 
 function Logo({ onClick }) {
   return (
@@ -31,10 +32,9 @@ function Logo({ onClick }) {
   );
 }
 
-function LandingPage({ navigate }) {
+function LandingPage({ navigate, educators, initialRole }) {
   const [notice, setNotice] = useState("");
-  const [selectedRole, setSelectedRole] = useState(null);
-  const tutor = getTutor();
+  const [selectedRole, setSelectedRole] = useState(initialRole || null);
 
   const selectRole = (role) => {
     setNotice("");
@@ -119,38 +119,42 @@ function LandingPage({ navigate }) {
                   .
                 </p>
                 <div className="mt-8 grid max-w-xl gap-3">
-                  <button
-                    type="button"
-                    className="flex min-h-20 items-center justify-between rounded-lg border border-[#1865F2] bg-white px-5 text-left hover:bg-[#F9FAFB]"
-                    onClick={() =>
-                      navigate(
-                        selectedRole === "student"
-                          ? "student-join"
-                          : "tutor-login",
-                      )
-                    }
-                  >
-                    <span>
-                      <span className="block font-bold text-[#111827]">
-                        {tutor.name}
+                  {educators.map((educator) => (
+                    <button
+                      key={educator.id}
+                      type="button"
+                      className="flex min-h-20 items-center justify-between rounded-lg border border-[#1865F2] bg-white px-5 text-left hover:bg-[#F9FAFB]"
+                      onClick={() =>
+                        navigate(
+                          selectedRole === "student"
+                            ? "student-join"
+                            : "tutor-login",
+                          { tutorId: educator.id },
+                        )
+                      }
+                    >
+                      <span>
+                        <span className="block font-bold text-[#111827]">
+                          {educator.name}
+                        </span>
+                        <span className="mt-1 block text-sm text-[#4B5563]">
+                          {educator.focus ||
+                            `Class ${educator.classLevel} ${educator.subject}`}
+                        </span>
                       </span>
-                      <span className="mt-1 block text-sm text-[#4B5563]">
-                        Class {tutor.classLevel} {tutor.subject}
+                      <span
+                        className="text-xl text-[#1865F2]"
+                        aria-hidden="true"
+                      >
+                        →
                       </span>
-                    </span>
-                    <span className="text-xl text-[#1865F2]" aria-hidden="true">
-                      →
-                    </span>
-                  </button>
+                    </button>
+                  ))}
                   {selectedRole === "tutor" && (
                     <button
                       type="button"
                       className="min-h-12 rounded-lg border border-dashed border-[#9CA3AF] px-6 text-left font-semibold text-[#4B5563] hover:border-[#1865F2] hover:text-[#1865F2]"
-                      onClick={() =>
-                        setNotice(
-                          "Educator registration will be available soon.",
-                        )
-                      }
+                      onClick={() => navigate("educator-registration")}
                     >
                       + Register as New Educator
                     </button>
@@ -239,14 +243,25 @@ function LandingPage({ navigate }) {
 function App() {
   const [currentView, setCurrentView] = useState("landing");
   const [viewParams, setViewParams] = useState({});
+  const [educators, setEducators] = useState(() => getEducators());
   const navigate = (view, params = {}) => {
     setViewParams(params);
     setCurrentView(view);
   };
 
-  if (currentView === "tutor-login") return <TutorLogin navigate={navigate} />;
+  if (currentView === "educator-registration")
+    return (
+      <EducatorRegistration
+        navigate={navigate}
+        onRegistered={(educator) =>
+          setEducators((current) => [...current, educator])
+        }
+      />
+    );
+  if (currentView === "tutor-login")
+    return <TutorLogin navigate={navigate} tutorId={viewParams.tutorId} />;
   if (currentView === "tutor-dashboard")
-    return <TutorDashboard navigate={navigate} />;
+    return <TutorDashboard navigate={navigate} tutorId={viewParams.tutorId} />;
   if (currentView === "create-assignment")
     return <CreateAssignment navigate={navigate} />;
   if (currentView === "student-join")
@@ -267,7 +282,13 @@ function App() {
     );
   if (currentView === "question-bank")
     return <QuestionBankRepository navigate={navigate} />;
-  return <LandingPage navigate={navigate} />;
+  return (
+    <LandingPage
+      navigate={navigate}
+      educators={educators}
+      initialRole={viewParams.role}
+    />
+  );
 }
 
 export default App;

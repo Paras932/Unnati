@@ -1,6 +1,7 @@
 const tutor = {
   id: "tutor-kuldeep",
   name: "Kuldeep Verma",
+  focus: "All Subjects",
   subject: "Mathematics",
   classLevel: 10,
   tutorCode: "KULDEEP10",
