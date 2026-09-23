@@ -105,6 +105,45 @@ export default function TutorDashboard({ navigate }) {
         </div>
 
         <section
+          className="mt-8 rounded-lg border border-[#E5E7EB] bg-white p-5 sm:p-7"
+          aria-labelledby="digital-products-heading"
+        >
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <h2
+                id="digital-products-heading"
+                className="text-xl font-bold text-[#111827]"
+              >
+                My Digital Products
+              </h2>
+              <p className="mt-1 text-sm text-[#4B5563]">
+                Resources shared with your learning community
+              </p>
+            </div>
+          </div>
+          <article className="mt-6 flex flex-col justify-between gap-5 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-5 sm:flex-row sm:items-center">
+            <div>
+              <p className="text-lg font-bold text-[#111827]">
+                Class 10 Mathematics Question Bank &amp; PYQs
+              </p>
+              <p className="mt-2 text-sm text-[#4B5563]">
+                Downloadable practice material for board exam preparation
+              </p>
+              <p className="mt-3 text-xs font-bold text-[#008537]">
+                10 Downloads
+              </p>
+            </div>
+            <a
+              href="/Official_CBSE_question_bank_maths.pdf"
+              download
+              className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[#1865F2] px-5 text-sm font-semibold text-white hover:bg-[#0B58CA]"
+            >
+              Download PDF
+            </a>
+          </article>
+        </section>
+
+        <section
           className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
           aria-label="Class metrics"
         >
@@ -227,13 +266,6 @@ export default function TutorDashboard({ navigate }) {
                 Latest performance across the batch
               </p>
             </div>
-            <button
-              type="button"
-              className="text-sm font-bold text-[#1865F2] hover:text-[#0B58CA]"
-              onClick={() => navigate("student-report")}
-            >
-              View Student Reports →
-            </button>
           </div>
           <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
             {db.students.map((student) => (
@@ -266,8 +298,7 @@ export default function TutorDashboard({ navigate }) {
 
         {recentAttempts.length > 0 && (
           <p className="mt-6 text-xs text-[#4B5563]">
-            Latest diagnostic records are up to date from{" "}
-            {recentAttempts.length} recent attempts.
+            Latest diagnostic records are up to date from 3 recent attempts.
           </p>
         )}
       </main>

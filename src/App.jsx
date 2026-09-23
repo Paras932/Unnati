@@ -9,6 +9,7 @@ import Practice from "./pages/Practice";
 import Result from "./pages/Result";
 import TutorStudentReport from "./pages/TutorStudentReport";
 import QuestionBankRepository from "./pages/QuestionBankRepository";
+import { getTutor } from "./data/mockDb";
 
 function Logo({ onClick }) {
   return (
@@ -32,6 +33,13 @@ function Logo({ onClick }) {
 
 function LandingPage({ navigate }) {
   const [notice, setNotice] = useState("");
+  const [selectedRole, setSelectedRole] = useState(null);
+  const tutor = getTutor();
+
+  const selectRole = (role) => {
+    setNotice("");
+    setSelectedRole(role);
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -45,47 +53,111 @@ function LandingPage({ navigate }) {
               setNotice("You are already on the Unnati home page.")
             }
           />
-          <button
-            type="button"
-            className="min-h-11 rounded-lg px-3 text-sm font-semibold text-[#4B5563] hover:bg-[#F9FAFB] hover:text-[#1865F2]"
-            onClick={() =>
-              setNotice("About Unnati is the final screen in this demo build.")
-            }
-          >
-            How it works
-          </button>
+          <span className="text-sm font-semibold text-[#4B5563]">
+            Learning portal
+          </span>
         </nav>
       </header>
 
       <main>
         <section className="mx-auto grid max-w-6xl gap-12 px-4 pb-16 pt-14 sm:px-8 sm:pt-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:gap-20 lg:pb-24">
           <div>
-            <p className="mb-5 text-sm font-bold uppercase tracking-[0.16em] text-[#1865F2]">
-              A better way to see learning
-            </p>
-            <h1 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-[#111827] sm:text-6xl">
-              The practice layer for local tutors.
-            </h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-[#4B5563]">
-              Unnati helps tutors assign curriculum-aligned practice, understand
-              what each student needs, and keep every learner moving forward.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <button
-                type="button"
-                className="min-h-12 rounded-lg bg-[#1865F2] px-6 font-semibold text-white hover:bg-[#0B58CA]"
-                onClick={() => navigate("tutor-login")}
-              >
-                Tutor Login
-              </button>
-              <button
-                type="button"
-                className="min-h-12 rounded-lg border border-[#1865F2] px-6 font-semibold text-[#1865F2] hover:bg-[#F9FAFB]"
-                onClick={() => navigate("student-join")}
-              >
-                Student Portal
-              </button>
-            </div>
+            {!selectedRole ? (
+              <>
+                <p className="mb-5 text-sm font-bold uppercase tracking-[0.16em] text-[#1865F2]">
+                  Welcome to Unnati
+                </p>
+                <h1 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-[#111827] sm:text-6xl">
+                  How would you like to enter?
+                </h1>
+                <p className="mt-6 max-w-xl text-lg leading-8 text-[#4B5563]">
+                  Choose the learning space that matches your role.
+                </p>
+                <div className="mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    className="min-h-24 rounded-lg bg-[#1865F2] px-5 text-left font-bold text-white hover:bg-[#0B58CA]"
+                    onClick={() => selectRole("student")}
+                  >
+                    <span className="block text-lg">Login as Student</span>
+                    <span className="mt-1 block text-sm font-normal text-blue-100">
+                      View assignments and practice
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    className="min-h-24 rounded-lg border border-[#1865F2] bg-white px-5 text-left font-bold text-[#1865F2] hover:bg-[#F9FAFB]"
+                    onClick={() => selectRole("tutor")}
+                  >
+                    <span className="block text-lg">Login as Tutor</span>
+                    <span className="mt-1 block text-sm font-normal text-[#4B5563]">
+                      Manage your learning space
+                    </span>
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="text-sm font-bold text-[#1865F2] hover:text-[#0B58CA]"
+                  onClick={() => selectRole(null)}
+                >
+                  ← Choose a different role
+                </button>
+                <p className="mt-6 mb-5 text-sm font-bold uppercase tracking-[0.16em] text-[#1865F2]">
+                  {selectedRole === "student" ? "Student login" : "Tutor login"}
+                </p>
+                <h1 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-[#111827] sm:text-6xl">
+                  Select your educator.
+                </h1>
+                <p className="mt-6 max-w-xl text-lg leading-8 text-[#4B5563]">
+                  Choose an educator to continue to the{" "}
+                  {selectedRole === "student"
+                    ? "Student Portal"
+                    : "Tutor Dashboard"}
+                  .
+                </p>
+                <div className="mt-8 grid max-w-xl gap-3">
+                  <button
+                    type="button"
+                    className="flex min-h-20 items-center justify-between rounded-lg border border-[#1865F2] bg-white px-5 text-left hover:bg-[#F9FAFB]"
+                    onClick={() =>
+                      navigate(
+                        selectedRole === "student"
+                          ? "student-join"
+                          : "tutor-login",
+                      )
+                    }
+                  >
+                    <span>
+                      <span className="block font-bold text-[#111827]">
+                        {tutor.name}
+                      </span>
+                      <span className="mt-1 block text-sm text-[#4B5563]">
+                        Class {tutor.classLevel} {tutor.subject}
+                      </span>
+                    </span>
+                    <span className="text-xl text-[#1865F2]" aria-hidden="true">
+                      →
+                    </span>
+                  </button>
+                  {selectedRole === "tutor" && (
+                    <button
+                      type="button"
+                      className="min-h-12 rounded-lg border border-dashed border-[#9CA3AF] px-6 text-left font-semibold text-[#4B5563] hover:border-[#1865F2] hover:text-[#1865F2]"
+                      onClick={() =>
+                        setNotice(
+                          "Educator registration will be available soon.",
+                        )
+                      }
+                    >
+                      + Register as New Educator
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
             {notice && (
               <p
                 className="mt-5 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3 text-sm text-[#4B5563]"
@@ -98,7 +170,7 @@ function LandingPage({ navigate }) {
 
           <div className="border-l-4 border-[#1865F2] bg-[#F9FAFB] p-6 sm:p-8">
             <p className="text-sm font-semibold text-[#4B5563]">
-              For the tutor who knows every student by name
+              A focused space for every educator
             </p>
             <p className="mt-4 text-2xl font-bold leading-snug text-[#111827]">
               Less time checking worksheets. More time helping the right
@@ -180,7 +252,9 @@ function App() {
   if (currentView === "student-join")
     return <StudentJoin navigate={navigate} />;
   if (currentView === "student-dashboard")
-    return <StudentDashboard navigate={navigate} />;
+    return (
+      <StudentDashboard navigate={navigate} studentId={viewParams.studentId} />
+    );
   if (currentView === "practice") return <Practice navigate={navigate} />;
   if (currentView === "result")
     return <Result navigate={navigate} attempt={viewParams.attempt} />;

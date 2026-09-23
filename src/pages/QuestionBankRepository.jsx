@@ -42,8 +42,8 @@ export default function QuestionBankRepository({ navigate }) {
               Question Bank Repository
             </h1>
             <p className="mt-3 max-w-2xl text-[#4B5563]">
-              30 CBSE Class 10 Mathematics MCQs, organised across Algebra,
-              Trigonometry, and Geometry.
+              90 CBSE Class 10 Mathematics MCQs, with 30 questions each across
+              Algebra, Trigonometry, and Geometry.
             </p>
           </div>
           <button
@@ -66,7 +66,7 @@ export default function QuestionBankRepository({ navigate }) {
             className={`min-h-11 rounded-full px-4 text-sm font-semibold ${activeSection === "all" ? "bg-[#1865F2] text-white" : "border border-[#E5E7EB] bg-white text-[#4B5563]"}`}
             onClick={() => setActiveSection("all")}
           >
-            All chapters · 30
+            All chapters · {db.sections.length * 30}
           </button>
           {db.sections.map((section) => (
             <button
@@ -77,7 +77,7 @@ export default function QuestionBankRepository({ navigate }) {
               className={`min-h-11 rounded-full px-4 text-sm font-semibold ${activeSection === section.id ? "bg-[#1865F2] text-white" : "border border-[#E5E7EB] bg-white text-[#4B5563]"}`}
               onClick={() => setActiveSection(section.id)}
             >
-              {section.name} · 10
+              {section.name} · 30
             </button>
           ))}
         </div>

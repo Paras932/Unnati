@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function Logo({ onClick }) {
   return (
@@ -21,8 +21,15 @@ function Logo({ onClick }) {
 }
 
 export default function TutorLogin({ navigate }) {
-  const [code, setCode] = useState("KULDEEP10");
+  const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const [isEntering, setIsEntering] = useState(false);
+
+  useEffect(() => {
+    if (!isEntering) return undefined;
+    const transition = setTimeout(() => navigate("tutor-dashboard"), 900);
+    return () => clearTimeout(transition);
+  }, [isEntering, navigate]);
 
   const enterSpace = (event) => {
     event.preventDefault();
@@ -30,8 +37,24 @@ export default function TutorLogin({ navigate }) {
       setError("That tutor code does not match the demo space.");
       return;
     }
-    navigate("tutor-dashboard");
+    setIsEntering(true);
   };
+
+  if (isEntering) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#F9FAFB] px-4">
+        <div className="text-center">
+          <p className="text-sm font-bold uppercase tracking-[0.16em] text-[#1865F2]">
+            Unnati
+          </p>
+          <h1 className="mt-4 text-3xl font-bold text-[#111827]">
+            Welcome Kuldeep ji...
+          </h1>
+          <p className="mt-3 text-[#4B5563]">Opening your educator space</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#F9FAFB]">

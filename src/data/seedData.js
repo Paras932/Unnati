@@ -278,13 +278,33 @@ const questionsBySection = {
   ]),
 };
 
+const expandQuestions = (questions) =>
+  Array.from({ length: 30 }, (_, index) => {
+    const source = questions[index % questions.length];
+    const variation = Math.floor(index / questions.length);
+    return {
+      ...source,
+      id: `${source.id}-library-${index + 1}`,
+      prompt:
+        variation === 0
+          ? source.prompt
+          : `${source.prompt} (Practice variation ${variation + 1})`,
+    };
+  });
+
+Object.keys(questionsBySection).forEach((sectionId) => {
+  questionsBySection[sectionId] = expandQuestions(
+    questionsBySection[sectionId],
+  );
+});
+
 const makeQuestionSet = (section, index) => ({
   id: `${section.id}-set-${index}`,
   sectionId: section.id,
   title: `${section.name} Practice Set ${index}`,
   classLevel: 10,
   subjectId: "mathematics",
-  questionCount: 10,
+  questionCount: questionsBySection[section.id].length,
   durationMinutes: 25,
   questions: index === 1 ? questionsBySection[section.id] : [],
   createdAt: `2026-08-${String(index + 1).padStart(2, "0")}`,

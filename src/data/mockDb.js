@@ -1,6 +1,6 @@
 import seedData from "./seedData";
 
-const STORAGE_KEY = "unnati-demo-db-v2";
+const STORAGE_KEY = "unnati-demo-db-v3";
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
