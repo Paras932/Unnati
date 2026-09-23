@@ -1,5 +1,10 @@
 import { useMemo } from "react";
-import { getAttempts, getDbSnapshot, getTutorById } from "../data/mockDb";
+import {
+  getAttempts,
+  getDbSnapshot,
+  getPendingAssignments,
+  getTutorById,
+} from "../data/mockDb";
 
 function Logo({ onClick }) {
   return (
@@ -37,6 +42,9 @@ export default function TutorDashboard({ navigate, tutorId }) {
   const tutor = getTutorById(tutorId);
   const db = getDbSnapshot();
   const attempts = getAttempts();
+  const pendingAssignments = getPendingAssignments().filter(
+    (assignment) => assignment.educatorId === tutor.id,
+  );
   const averageScore = Math.round(
     db.students.reduce(
       (total, student) => total + student.latestOverallScorePct,
@@ -106,8 +114,8 @@ export default function TutorDashboard({ navigate, tutorId }) {
             />
             <Metric
               label="Pending assignments"
-              value="0"
-              detail="No pending assignments"
+              value={pendingAssignments.length}
+              detail="Currently shared"
             />
           </section>
 
@@ -165,7 +173,7 @@ export default function TutorDashboard({ navigate, tutorId }) {
           <button
             type="button"
             className="min-h-12 rounded-lg bg-[#1865F2] px-5 font-semibold text-white hover:bg-[#0B58CA]"
-            onClick={() => navigate("create-assignment")}
+            onClick={() => navigate("create-assignment", { tutorId: tutor.id })}
           >
             + Create assignment
           </button>
@@ -229,7 +237,11 @@ export default function TutorDashboard({ navigate, tutorId }) {
             value={needsSupport}
             detail="Students to check in with"
           />
-          <Metric label="Assignments" value="0" detail="Currently shared" />
+          <Metric
+            label="Assignments"
+            value={pendingAssignments.length}
+            detail="Currently shared"
+          />
         </section>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
@@ -294,9 +306,27 @@ export default function TutorDashboard({ navigate, tutorId }) {
             <p className="mt-1 text-sm text-[#4B5563]">
               Most recent shared practice
             </p>
-            <p className="mt-4 text-sm text-[#4B5563]">
-              No active assignments currently shared.
-            </p>
+            {pendingAssignments.length === 0 ? (
+              <p className="mt-4 text-sm text-[#4B5563]">
+                No active assignments currently shared.
+              </p>
+            ) : (
+              <div className="mt-6 space-y-3">
+                {pendingAssignments.map((assignment) => (
+                  <article
+                    key={assignment.id}
+                    className="border-l-4 border-[#1865F2] bg-[#F9FAFB] p-4"
+                  >
+                    <p className="font-bold text-[#111827]">
+                      {assignment.chapter} practice
+                    </p>
+                    <p className="mt-2 text-sm text-[#4B5563]">
+                      Shared with {assignment.studentName}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            )}
             <button
               type="button"
               className="mt-5 min-h-11 w-full rounded-lg border border-[#1865F2] px-4 font-semibold text-[#1865F2] hover:bg-[#F9FAFB]"

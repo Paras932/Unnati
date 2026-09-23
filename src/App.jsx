@@ -263,14 +263,23 @@ function App() {
   if (currentView === "tutor-dashboard")
     return <TutorDashboard navigate={navigate} tutorId={viewParams.tutorId} />;
   if (currentView === "create-assignment")
-    return <CreateAssignment navigate={navigate} />;
+    return (
+      <CreateAssignment navigate={navigate} tutorId={viewParams.tutorId} />
+    );
   if (currentView === "student-join")
     return <StudentJoin navigate={navigate} />;
   if (currentView === "student-dashboard")
     return (
       <StudentDashboard navigate={navigate} studentId={viewParams.studentId} />
     );
-  if (currentView === "practice") return <Practice navigate={navigate} />;
+  if (currentView === "practice")
+    return (
+      <Practice
+        navigate={navigate}
+        studentId={viewParams.studentId}
+        assignmentId={viewParams.assignmentId}
+      />
+    );
   if (currentView === "result")
     return <Result navigate={navigate} attempt={viewParams.attempt} />;
   if (currentView === "student-report")

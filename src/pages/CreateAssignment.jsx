@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { createAssignment, getDbSnapshot } from "../data/mockDb";
+import { createPendingAssignment, getDbSnapshot } from "../data/mockDb";
 
-export default function CreateAssignment({ navigate }) {
+export default function CreateAssignment({ navigate, tutorId }) {
   const db = getDbSnapshot();
   const [sectionId, setSectionId] = useState("trigonometry");
   const [studentId, setStudentId] = useState("aarav-sharma");
@@ -12,12 +12,17 @@ export default function CreateAssignment({ navigate }) {
 
   const submitAssignment = (event) => {
     event.preventDefault();
-    createAssignment({
+    const selectedStudent = db.students.find(
+      (student) => student.id === studentId,
+    );
+    createPendingAssignment({
+      chapter: section.name,
       questionSetId: selectedSet.id,
-      tutorId: db.tutor.id,
-      studentIds: [studentId],
+      studentId,
+      studentName: selectedStudent.name,
+      educatorId: tutorId || db.tutor.id,
     });
-    navigate("tutor-dashboard");
+    navigate("tutor-dashboard", { tutorId: tutorId || db.tutor.id });
   };
 
   return (

@@ -2,6 +2,7 @@ import seedData from "./seedData";
 
 const STORAGE_KEY = "unnati-demo-db-v3";
 const EDUCATORS_STORAGE_KEY = "unnati-educators-v1";
+const PENDING_ASSIGNMENTS_STORAGE_KEY = "pending_assignments";
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
@@ -23,6 +24,18 @@ const writeDb = (db) => {
 
 const createId = (prefix) =>
   `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+const readPendingAssignments = () => {
+  const stored = localStorage.getItem(PENDING_ASSIGNMENTS_STORAGE_KEY);
+  if (!stored) return [];
+
+  try {
+    const assignments = JSON.parse(stored);
+    return Array.isArray(assignments) ? assignments : [];
+  } catch {
+    return [];
+  }
+};
 
 export const getDbSnapshot = () => clone(readDb());
 export const getEducators = () => {
@@ -75,6 +88,44 @@ export const getQuestionSet = (questionSetId) =>
   getQuestionSets().find((questionSet) => questionSet.id === questionSetId);
 export const getAssignments = () => getDbSnapshot().assignments;
 export const getAttempts = () => getDbSnapshot().attempts;
+export const getPendingAssignments = () => readPendingAssignments();
+export const getPendingAssignment = (assignmentId) =>
+  readPendingAssignments().find((assignment) => assignment.id === assignmentId);
+
+export const createPendingAssignment = ({
+  chapter,
+  questionSetId,
+  studentId,
+  studentName,
+  educatorId,
+}) => {
+  const assignment = {
+    id: createId("pending-assignment"),
+    chapter,
+    questionSetId,
+    studentId,
+    studentName,
+    educatorId,
+    createdAt: new Date().toISOString(),
+  };
+  const assignments = [...readPendingAssignments(), assignment];
+  localStorage.setItem(
+    PENDING_ASSIGNMENTS_STORAGE_KEY,
+    JSON.stringify(assignments),
+  );
+  return clone(assignment);
+};
+
+export const removePendingAssignment = (assignmentId) => {
+  const assignments = readPendingAssignments();
+  const remainingAssignments = assignments.filter(
+    (assignment) => assignment.id !== assignmentId,
+  );
+  localStorage.setItem(
+    PENDING_ASSIGNMENTS_STORAGE_KEY,
+    JSON.stringify(remainingAssignments),
+  );
+};
 
 export const resetDemoData = () => {
   localStorage.removeItem(STORAGE_KEY);

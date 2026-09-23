@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { getAttemptsForStudent, getDbSnapshot } from "../data/mockDb";
+import {
+  getAttemptsForStudent,
+  getDbSnapshot,
+  getPendingAssignments,
+} from "../data/mockDb";
 
 export default function StudentDashboard({ navigate, studentId }) {
   const db = getDbSnapshot();
@@ -7,6 +11,9 @@ export default function StudentDashboard({ navigate, studentId }) {
     db.students.find((item) => item.id === studentId) || db.students[0];
   const attempts = getAttemptsForStudent(student.id).sort(
     (a, b) => new Date(b.completedAt) - new Date(a.completedAt),
+  );
+  const pendingAssignments = getPendingAssignments().filter(
+    (assignment) => assignment.studentId === student.id,
   );
   const [selectedAttempt, setSelectedAttempt] = useState(null);
   const getReviewQuestions = (attempt) => {
@@ -63,12 +70,48 @@ export default function StudentDashboard({ navigate, studentId }) {
           <span className="rounded-full bg-[#E6F4EA] px-3 py-1 text-xs font-bold text-[#008537]">
             Assigned practice
           </span>
-          <h2 className="mt-4 text-2xl font-bold text-[#111827]">
-            No pending assignments. You are all caught up!
-          </h2>
-          <p className="mt-2 text-[#4B5563]">
-            New practice will appear here when Kuldeep Verma assigns it.
-          </p>
+          {pendingAssignments.length === 0 ? (
+            <>
+              <h2 className="mt-4 text-2xl font-bold text-[#111827]">
+                No pending assignments. You are all caught up!
+              </h2>
+              <p className="mt-2 text-[#4B5563]">
+                New practice will appear here when Kuldeep Verma assigns it.
+              </p>
+            </>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {pendingAssignments.map((assignment) => (
+                <article
+                  key={assignment.id}
+                  className="border-l-4 border-[#1865F2] bg-[#F9FAFB] p-4"
+                >
+                  <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                    <div>
+                      <h2 className="text-xl font-bold text-[#111827]">
+                        {assignment.chapter} practice
+                      </h2>
+                      <p className="mt-2 text-sm text-[#4B5563]">
+                        Assigned by your educator · Ready to start
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="min-h-11 shrink-0 rounded-lg bg-[#1865F2] px-5 text-sm font-semibold text-white hover:bg-[#0B58CA]"
+                      onClick={() =>
+                        navigate("practice", {
+                          studentId: student.id,
+                          assignmentId: assignment.id,
+                        })
+                      }
+                    >
+                      Start Practice
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
         <section className="mt-8 rounded-lg border border-[#E5E7EB] bg-white p-5 sm:p-7">
           <h2 className="text-xl font-bold text-[#111827]">

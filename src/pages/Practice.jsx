@@ -1,11 +1,23 @@
 import { useState } from "react";
-import { getAssignmentsForStudent, submitAttempt } from "../data/mockDb";
+import {
+  getDbSnapshot,
+  getPendingAssignment,
+  getPendingAssignments,
+  removePendingAssignment,
+  submitAttempt,
+} from "../data/mockDb";
 
-export default function Practice({ navigate }) {
-  const assignment = getAssignmentsForStudent("aarav-sharma").find(
-    (item) => item.questionSet?.questions.length > 0,
+export default function Practice({ navigate, studentId, assignmentId }) {
+  const db = getDbSnapshot();
+  const assignment =
+    getPendingAssignment(assignmentId) ||
+    getPendingAssignments().find((item) => item.studentId === studentId);
+  const questionSet = db.questionSets.find(
+    (set) =>
+      set.sectionId === assignment?.questionSetId?.split("-")[0] &&
+      set.questions.length > 0,
   );
-  const questions = assignment?.questionSet?.questions || [];
+  const questions = (questionSet?.questions || []).slice(0, 10);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const question = questions[currentIndex];
@@ -31,10 +43,10 @@ export default function Practice({ navigate }) {
     const topics = Object.entries(topicStats).sort(
       (a, b) => b[1].correct / b[1].total - a[1].correct / a[1].total,
     );
-    const attempt = submitAttempt({
+    submitAttempt({
       assignmentId: assignment.id,
-      studentId: "aarav-sharma",
-      questionSetId: assignment.questionSetId,
+      studentId: assignment.studentId,
+      questionSetId: questionSet.id,
       answers: answerRows,
       scoreCorrect,
       scoreTotal: questions.length,
@@ -43,7 +55,8 @@ export default function Practice({ navigate }) {
       weakTopic: topics.at(-1)?.[0] || "Review the full set",
       reportSharedWithTutor: true,
     });
-    navigate("result", { attempt });
+    removePendingAssignment(assignment.id);
+    navigate("student-dashboard", { studentId: assignment.studentId });
   };
   if (!question)
     return <div className="p-8">No playable assignment found.</div>;
@@ -55,7 +68,7 @@ export default function Practice({ navigate }) {
             Unnati
           </span>
           <span className="text-sm font-semibold text-[#4B5563]">
-            Trigonometry Practice
+            {assignment.chapter} Practice
           </span>
         </nav>
       </header>
