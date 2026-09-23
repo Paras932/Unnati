@@ -1,10 +1,5 @@
 import { useMemo } from "react";
-import {
-  getAssignments,
-  getAttempts,
-  getDbSnapshot,
-  getTutorById,
-} from "../data/mockDb";
+import { getAttempts, getDbSnapshot, getTutorById } from "../data/mockDb";
 
 function Logo({ onClick }) {
   return (
@@ -42,11 +37,6 @@ export default function TutorDashboard({ navigate, tutorId }) {
   const tutor = getTutorById(tutorId);
   const db = getDbSnapshot();
   const attempts = getAttempts();
-  const assignments = getAssignments();
-  const latestAssignment = assignments[assignments.length - 1];
-  const latestQuestionSet = db.questionSets.find(
-    (set) => set.id === latestAssignment?.questionSetId,
-  );
   const averageScore = Math.round(
     db.students.reduce(
       (total, student) => total + student.latestOverallScorePct,
@@ -239,11 +229,7 @@ export default function TutorDashboard({ navigate, tutorId }) {
             value={needsSupport}
             detail="Students to check in with"
           />
-          <Metric
-            label="Assignments"
-            value={assignments.length}
-            detail="Currently shared"
-          />
+          <Metric label="Assignments" value="0" detail="Currently shared" />
         </section>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.35fr_0.65fr]">
@@ -308,21 +294,9 @@ export default function TutorDashboard({ navigate, tutorId }) {
             <p className="mt-1 text-sm text-[#4B5563]">
               Most recent shared practice
             </p>
-            <div className="mt-6 border-l-4 border-[#1865F2] bg-[#F9FAFB] p-4">
-              <p className="font-bold text-[#111827]">
-                {latestQuestionSet?.title || "Trigonometry Practice Set 1"}
-              </p>
-              <p className="mt-2 text-sm text-[#4B5563]">
-                {latestQuestionSet?.questionCount || 10} questions ·{" "}
-                {latestQuestionSet?.durationMinutes || 25} minutes
-              </p>
-              <p className="mt-3 text-xs font-semibold text-[#008537]">
-                Shared with{" "}
-                {db.students.find((student) =>
-                  latestAssignment?.studentIds?.includes(student.id),
-                )?.name || "Aarav Sharma"}
-              </p>
-            </div>
+            <p className="mt-4 text-sm text-[#4B5563]">
+              No active assignments currently shared.
+            </p>
             <button
               type="button"
               className="mt-5 min-h-11 w-full rounded-lg border border-[#1865F2] px-4 font-semibold text-[#1865F2] hover:bg-[#F9FAFB]"

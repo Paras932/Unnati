@@ -10,16 +10,19 @@ export default function StudentDashboard({ navigate, studentId }) {
   );
   const [selectedAttempt, setSelectedAttempt] = useState(null);
   const getReviewQuestions = (attempt) => {
+    const sectionId = attempt.questionSetId.split("-")[0];
     const questionSet = db.questionSets.find(
-      (set) => set.id === attempt.questionSetId,
+      (set) => set.id === `${sectionId}-set-1`,
     );
-    return (questionSet?.questions || []).slice(0, 3).map((question, index) => {
-      const selectedOptionIndex =
-        index === 1
-          ? (question.correctOptionIndex + 1) % question.options.length
-          : question.correctOptionIndex;
-      return { ...question, selectedOptionIndex };
-    });
+    return (questionSet?.questions || [])
+      .slice(0, 10)
+      .map((question, index) => {
+        const selectedOptionIndex =
+          index === 1
+            ? (question.correctOptionIndex + 1) % question.options.length
+            : question.correctOptionIndex;
+        return { ...question, selectedOptionIndex };
+      });
   };
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
@@ -185,10 +188,18 @@ export default function StudentDashboard({ navigate, studentId }) {
                         </span>
                       </p>
                       <p
-                        className={`mt-2 text-sm font-bold ${isCorrect ? "text-[#008537]" : "text-[#C2410C]"}`}
+                        className={`mt-3 inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${isCorrect ? "bg-[#E6F4EA] text-[#008537]" : "bg-[#FEE2E2] text-[#B91C1C]"}`}
                       >
                         {isCorrect ? "Correct" : "Incorrect"}
                       </p>
+                      {!isCorrect && (
+                        <p className="mt-2 text-sm text-[#4B5563]">
+                          Correct answer:{" "}
+                          <span className="font-semibold text-[#111827]">
+                            {question.options[question.correctOptionIndex]}
+                          </span>
+                        </p>
+                      )}
                     </div>
                   );
                 })}

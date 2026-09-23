@@ -117,7 +117,7 @@ export default function EducatorRegistration({ navigate, onRegistered }) {
             <input
               id="educator-password"
               name="educator-password"
-              type="password"
+              type="text"
               value={password}
               onChange={(event) => {
                 setPassword(event.target.value);
